@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<title>Cycling Log</title>
+  <link rel="stylesheet" href="/cycling_log/static/style/cycling_log.css">
+  <script language="javascript">
+    function focusOnUsername() {
+      document.loginForm.username.focus();
+    }
+  </script>
+</head>
+
+<body onLoad="focusOnUsername()">
+
+<div class="tabs">#if($cyclist)<div class="tab" id="selected" style="border-left: solid #787878 2px;">HOME</div><div class="tab"><a href="/cycling_log/dynamic/workouts/home">WORKOUTS</a></div><div class="tab"><a href="/cycling_log/dynamic/weeks/home">WEEKS</a></div><div class="tab"><a href="/cycling_log/dynamic/equipment/home">PREFS</a></div>#end</div>
+<div class="tab_content" align="center">
+
+<table>
+	<tr>
+		<td width="60%">
+
+			<table>
+			#foreach($workout in $workouts)
+				<tr>
+					<td align="right" valign="top" nowrap>
+						#if (!$lastDate || $date.format('yyyy-M-d', $workout.date) != $date.format('yyyy-M-d', $lastDate))
+							<span id="stats">$workout.getDate("EEEE, MMM d")</span>
+							#set($lastDate = $workout.date)
+						#end
+					</td>
+					<td>&nbsp;&nbsp;&nbsp;</td>
+					<td>
+						<a href="/cycling_log/dynamic/workouts/home?cyclist=$workout.user.username"><span class="label">$workout.user.name</span></a> 
+						<br>$workout.summary$workout.publicNotes
+					</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
+			#end
+				<tr>
+					<td>&nbsp;</td>
+					<td></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td></td>
+					<td><i>Click on a person's name to see the rest of their log</i></td>
+				</tr>
+			</table>
+		</td>
+		<td width="24"></td>
+		<td valign="top" align="right">
+			<table class="controls">
+			#if($message)
+				<tr>
+					<td colspan="2">
+						$message<br><br>
+					</td>
+				</tr>
+			#end
+			#if(!$user)
+				<form method="post" action="/cycling_log/dynamic/login/login" name="loginForm">
+				<tr>
+					<td class="label" align="right" valign="middle">
+						Username:
+					</td>
+					<td class="control" align="left" valign="middle">
+						<input type="text" name="username" value="$!username">
+					</td>
+				</tr>
+				<tr>
+					<td class="label" align="right" valign="middle">
+						Password:
+					</td>
+					<td class="control" align="left" valign="middle">
+						<input type="password" name="password">
+					</td>
+				</tr>
+				<tr>
+					<td>
+					</td>
+					<td id="right_align">
+						<input type="submit" value="Login">
+					</td>
+				</tr>
+				</form>
+				#else
+				<form method="post" action="/cycling_log/dynamic/login/logout" name="loginForm">
+				<tr>
+					<td colspan="2" align="right">
+						You are logged-in as $user.name<br>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2" id="right_align">
+						<input type="submit" value="Logout">
+					</td>
+				</tr>
+				</form>
+				#end
+			</table>
+		</td>
+	</tr>
+</table>
+
+
+</div>
+
+</body>
+</html>

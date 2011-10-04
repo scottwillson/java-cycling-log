@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<title>Cycling Log Equipment</title>
+  <link rel="stylesheet" href="/cycling_log/static/style/cycling_log.css">
+  <script language="javascript1.5">
+    function doDelete(id, name) {
+    	if (confirm("Delete " + name + "?")) {
+    		document.updateForm.delete_id.value = id;
+	      document.updateForm.submit();
+    	}
+    }
+  </script>
+</head>
+
+<body>
+
+<form method="post" name="updateForm">
+<input type="hidden" name="cyclist.id" value="$form.cyclist.id">
+<input type="hidden" name="delete_id" value="">
+
+<div class="tabs"></div>
+<div class="tab_content" align="center">
+#if ($errors)
+	$errors<br><br>
+#end
+<table width="300">
+	<tr valign="middle">
+		<td colspan="3" class="grid_label" id="center_align">$form.cyclist.name's Equipment</td>
+	</tr>
+	#foreach($e in $form.equipment)
+	<tr valign="middle">
+		#if($e.name != "")
+		<td class="grid_label"></td>
+		<td class="grid_control">
+			<input type="text" name="equipment[$count].name" value="$e.name" id="equipment">
+			<input type="hidden" name="equipment[$count].id" value="$e.id">
+		</td>
+		<td><input type="button" value="-" id="delete" onclick="doDelete($e.id, '$e.name')"></td>
+		#end
+	</tr>
+	#end
+	<tr valign="middle">
+		<td class="grid_label">New:</td>
+		<td class="grid_control">
+			<input type="text" name="newEquipment.name" size="24" id="equipment" value="$form.newEquipment.name">
+		</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td colspan="3">&nbsp;</td>
+	</tr>
+	<tr valign="middle">
+		<td></td>
+		<td align="right"><input name="done" type="submit" value="Done">&nbsp;&nbsp;&nbsp;<input name="save" type="submit" value="Save"></td>
+		<td></td>
+	</tr>
+</table>
+
+</div>
+</div>
+</form>
+</body>
+</html>

@@ -1,0 +1,19 @@
+#macro(select $name $values $selected)
+
+<select name="$name" style="width: 100px;">
+  #foreach($value in $values)
+    #if($selected == $value.toString())
+  <option selected>$value</option>
+    #else
+  <option>$value</option>
+    #end
+  #end
+</select>
+
+#end
+
+#macro(workoutSelect $name $selected)
+
+  #select($name ["", "4", "3", "2", "1"] $selected)
+
+#end

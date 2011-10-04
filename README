@@ -1,0 +1,3 @@
+Simple cycling log to track workouts. Spring + Hibernate. Needs some love to run on any server than my own.
+
+I've long replaced this with a Rails-based version (there are also EJB and REALBasic versions)

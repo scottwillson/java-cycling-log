@@ -1,0 +1,213 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<title>Cycling Log Workouts</title>
+  <link rel="stylesheet" href="/cycling_log/static/style/cycling_log.css">
+  <script language="javascript1.5">
+  
+  	function calculateEmptyValue() {
+      var hours = Number(document.forms.updateForm.workout_hours.value);
+      var minutes = Number(document.forms.updateForm.workout_minutes.value);
+      var speed = Number(document.forms.updateForm.workout_speed.value);
+      var minutes_per_mile = Number(document.forms.updateForm.workout_minutes_per_mile.value);
+      var seconds_per_mile = Number(document.forms.updateForm.workout_seconds_per_mile.value);
+      var distance = Number(document.forms.updateForm.workout_distance.value);
+      
+      var duration_entered = (hours + minutes) != 0;
+      var speed_entered = (speed + minutes_per_mile + seconds_per_mile) != 0;
+      var distance_entered = distance != 0;
+      
+      if (duration_entered + speed_entered + distance_entered != 2) {
+  	  	alert("To calculate time, speed or distance, fill in two values and leave the third empty");
+  	  	return;
+      }
+      
+      if (!duration_entered) {
+      	calculateDuration();
+      	return;
+      }
+      
+      if (!speed_entered) {
+      	calculateSpeed();
+      	synchMinSecPerMile();
+      	return;
+      }
+      
+      if (!distance_entered) {
+      	calculateDistance();
+      	return;
+      }
+      
+  	}
+  
+    function calculateDistance() {
+      var hours = Number(document.forms.updateForm.workout_hours.value);
+      var minutes = Number(document.forms.updateForm.workout_minutes.value);
+      var speed = Number(document.forms.updateForm.workout_speed.value);
+      var distance = Number((hours + (minutes / 60)) * speed);
+      distance = Math.round(distance * 10) / 10;
+      document.forms.updateForm.workout_distance.value = distance;
+    }
+
+    function calculateDuration() {
+      var distance = Number(document.forms.updateForm.workout_distance.value);
+      var speed = Number(document.forms.updateForm.workout_speed.value);
+      var hours = Math.floor(distance / speed)
+      document.forms.updateForm.workout_hours.value = hours;
+      var minutes = 60 * ((distance - (hours * speed)) / speed);
+      minutes = Math.round(minutes);
+      if (minutes < 10) {
+      	minutes = "0" + minutes;
+      }
+      document.forms.updateForm.workout_minutes.value = minutes;
+    }
+
+    function calculateSpeed() {
+      var distance = document.forms.updateForm.workout_distance.value;
+      var hours = Number(document.forms.updateForm.workout_hours.value);
+      var minutes = Number(document.forms.updateForm.workout_minutes.value);
+      var speed = distance / (hours + (minutes / 60));
+      speed = Math.round(speed * 10) / 10;
+      document.forms.updateForm.workout_speed.value = speed;
+    }
+    
+    function synchMinSecPerMile() {
+      var speed = Number(document.forms.updateForm.workout_speed.value);
+      if (speed > 0) {
+		  var minutesPerMile = Math.floor(60 / speed);
+		  document.forms.updateForm.workout_minutes_per_mile.value = minutesPerMile;
+		  var secondsPerMile = Math.round(((60 / speed) - minutesPerMile) * 60);
+		  if (secondsPerMile < 10) {
+			secondsPerMile = "0" + secondsPerMile;
+		  }
+		  document.forms.updateForm.workout_seconds_per_mile.value = secondsPerMile;
+	  }
+    }
+    
+    function synchSpeed() {
+      var minutes_per_mile = Number(document.forms.updateForm.workout_minutes_per_mile.value);
+      var seconds_per_mile = Number(document.forms.updateForm.workout_seconds_per_mile.value);
+      if (minutes_per_mile + seconds_per_mile > 0) {
+      	var hours = minutes_per_mile / 60 + seconds_per_mile / 3600;
+		var speed = 1 / hours;
+		speed = Math.round(speed * 10) / 10;
+		document.forms.updateForm.workout_speed.value = speed;
+      }
+    }
+    
+    function doDelete() {
+    	if (confirm("Delete workout?")) {
+	      document.forms.updateForm.submit();
+    	}
+    }
+
+  </script>
+</head>
+
+<body>
+
+<form action="update" method="get" name="updateForm">
+<input type="hidden" name="workout_id" value="$!{workout.id}">
+
+<div class="tabs"></div>
+<div class="tab_content" align="center">
+
+<table>
+	<tr>
+		<td colspan="4" class="grid_header">$workout.getDate("EEEEE")</span>
+  $workoutDateSelector</td>
+	</tr>
+	<tr valign="middle">
+		<td class="grid_label">Activity:</td>
+		<td class="grid_control">#select("workout_activity" $activities "$workout.activity")</td>
+		<td class="grid_label">Intensity:</td>
+		<td class="grid_control">#workoutSelect("workout_intensity" "$workout.intensity")</td>
+	</tr>
+	<tr valign="middle">
+		<td class="grid_label">Focus:</td>
+		<td class="grid_control">#select("workout_focus" $foci "$workout.focus")</td>
+		<td class="grid_label">Work:</td>
+		<td class="grid_control">$!workout.work</td>
+	</tr>
+	<tr valign="middle">
+		<td class="grid_label">Morale:</td>
+		<td class="grid_control">#workoutSelect("workout_morale" "$workout.morale")</td>
+		<td class="grid_label">Equipment:</td>
+		<td class="grid_control">$select.getSelect("workout_equipment", $sort.natural($workout.user.equipment), $workout.equipment, "width: auto;")</td>
+	</tr>
+	<tr valign="middle">
+		<td colspan="2" rowspan="5">
+			<table class="box" width="100%">
+				<tr valign="middle">
+					<td class="grid_label">Time:</td>
+					<td class="grid_control"><input type="text" name="workout_hours" size="2" 
+						value="$!workout.hours" id="duration"><span style="width: 10px;">:</span><input 
+						type="text" name="workout_minutes" size="2" value="$!workout.minutes" 
+						id="duration"></td>
+				</tr>
+				<tr valign="middle">
+					<td class="grid_label">Speed:</td>
+					<td class="grid_control"><input type="text" name="workout_speed" size="4" value="$!workout.speed" onblur="synchMinSecPerMile()"> mph</td>
+				</tr>
+				<tr valign="middle">
+					<td class="grid_label"></td>
+					<td class="grid_control"><input type="text" name="workout_minutes_per_mile" size="2" value="$!workout.minutesPerMile" id="duration" onblur="synchSpeed()"><span style="width: 10px;">:</span><input type="text" name="workout_seconds_per_mile" size="2" value="$!workout.secondsPerMile" 
+						id="duration" onblur="synchSpeed()"> min:sec/mile
+					</td>
+				</tr>
+				<tr valign="middle">
+					<td class="grid_label">Distance:</td>
+					<td class="grid_control"><input type="text" name="workout_distance" size="6" value="$!workout.distance"></td>
+				</tr>
+				<tr valign="middle">
+					<td colspan="2" align="right"><input type="button" value="Calculate Empty Value" onclick="calculateEmptyValue()"></td>
+				</tr>
+			</table>
+		</td>
+		<td class="grid_label">Life:</td>
+		<td class="grid_control">#workoutSelect("workout_life" "$workout.life")</td>
+	</tr>
+	<tr valign="middle">
+		<td class="grid_label">Weather:</td>
+		<td class="grid_control">#workoutSelect("workout_weather" "$workout.weather")</td>
+	</tr>
+	<tr valign="middle">
+		<td class="grid_label">Weight:</td>
+		<td class="grid_control"><input type="text" name="workout_weight" size="6" value="$!workout.weight"></td>
+	</tr>
+	<tr valign="middle">
+		<td class="grid_label"></td>
+		<td class="grid_control"></td>
+	</tr>
+	<tr valign="middle">
+		<td class="grid_label"></td>
+		<td class="grid_control"></td>
+	</tr>
+</table>
+
+<br>
+<table>
+	<tr>
+		<td>
+			<div class="label">Public Notes</div>
+			<textarea class="workout_notes" name="workout_publicNotes">$!workout.publicNotes</textarea>
+		</td>
+		<td>
+			<div class="label">Notes</div>
+			<textarea class="workout_notes" name="workout_notes">$!workout.notes</textarea>
+		</td>
+	</tr>
+	<tr>
+		<td align="left"></td>
+		<td align="right"><input type="submit" name="delete" value="Delete" onclick="doDelete()"><div style="padding-right: 6pt; display: inline;"></div><input type="submit" name="cancel" value="Cancel"><div style="padding-right: 6pt; display: inline;"></div><input type="submit" value="Save"></td>
+	</tr>
+</table>
+
+</div>
+</div>
+</form>
+</body>
+</html>

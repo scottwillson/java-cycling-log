@@ -1,0 +1,203 @@
+<project name="cycling_log" default="compile" basedir=".">
+
+  <property file="build.${target}.properties"/>
+
+  <filterset id="filters">
+    <filtersfile file="build.${target}.properties" />
+  </filterset>
+
+  <path id="project.class.path">
+    <fileset dir="lib">
+      <include name="**/*.jar"/>
+    </fileset>
+  </path>
+
+  <target name="prepare">
+    <mkdir  dir="build"/>
+    <mkdir  dir="build/classes"/>
+  </target>
+
+  <target name="copyProperties">
+    <copy todir="build/classes" overwrite="true">
+      <filterset refid="filters"/>      
+      <fileset dir="etc" >
+        <include name="applicationContext.xml" />
+        <include name="dataSource.xml" />
+        <include name="ehcache.xml" />
+        <include name="frontcontroller-servlet.xml" />
+        <include name="log4j.properties" />
+      </fileset>
+      <fileset dir="src/velocity" >
+        <include name="VM_global_library.vm" />
+      </fileset>
+    </copy>
+    <copy file="etc/dataSource-${target}.xml" 
+      tofile="build/classes/dataSource.xml" 
+      overwrite="true" />
+    <copy todir="build/classes">
+      <filterset refid="filters"/>      
+      <fileset dir="src/java" >
+        <include name="**/*.xml" />
+      </fileset>
+    </copy>
+  </target>
+
+  <!-- blow away all our compiled classes, jars, and everything else -->
+
+  <target name="clean" description="remove all generated files">
+    <delete dir="build"/>
+  </target>
+
+
+  <!-- Compile java source files and place them in the build directory,
+  ready to be jar'ed or copied to a deployment directory -->
+
+  <target name="compile" depends="prepare">
+    <javac destdir="build/classes"
+           compiler="modern"
+           debug="on" optimize="off" deprecation="on"
+           includeantruntime="false"
+           excludes="**/*.html"
+           classpathref="project.class.path">
+      <src path="src/java:src/test"/>
+    </javac>
+    <ant target="copyProperties" />
+  </target>
+
+
+  <target name="deploy" depends="war">
+    <exec executable="rsync">
+      <arg line="-e ssh cycling_log.war ${deploy.path}" />
+    </exec>
+  </target>
+
+
+  <target name="jetty" depends="war">
+    <copy todir="/Library/jetty-5.1.8/webapps/cycling_log">
+      <fileset dir="build/cycling_log.war"/>
+    </copy>
+  </target>
+
+
+  <target name="tomcat">
+    <antcall target="uninstall"/>
+    <antcall target="war"/>
+    <antcall target="install"/>
+  </target>
+
+
+  <target name="uninstall">
+    <exec executable="curl">
+      <arg line="-s -uadmin:Merckx -o /tmp/curl http://localhost:8080/manager/html/remove?path=/cycling_log"/>
+    </exec>
+  </target>
+
+
+  <target name="install">
+    <copy file="build/cycling_log.war" todir="/Library/tomcat/webapps"/>
+    <exec executable="curl">
+      <arg line="-s -uadmin:Merckx -o /tmp/curl http://localhost:8080/manager/html/install?installPath=&amp;installConfig=&amp;installWar=cycling_log.war"/>
+    </exec>
+  </target>
+
+	<target name="web" depends="war">
+    <copy todir="${deploy.path}">
+      <fileset dir="build/cycling_log.war">
+      	<include name="*.gif" />
+      	<include name="*.css" />
+      	<include name="*.html" />
+      	<include name="*.vm" />
+      </fileset>
+    </copy>
+
+	</target>
+
+  <target name="war" depends="compile">
+    <copy todir="build/cycling_log.war/WEB-INF/classes">
+      <fileset dir="src/java">
+        <include name="**/*.hbm.xml"/>
+      </fileset>
+      <fileset dir="build/classes">
+        <include name="**/*.class"/>
+      </fileset>
+    </copy>
+
+    <copy todir="build/cycling_log.war/WEB-INF/lib">
+      <fileset dir="lib">
+        <include name="*.dtd"/>
+        <include name="cglib-nodep-2.1-dev.jar"/>
+        <include name="commons-beanutils.jar"/>
+        <include name="commons-collections.jar"/>
+        <include name="commons-dbcp.jar"/>
+        <include name="commons-digester.jar"/>
+        <include name="commons-discovery.jar"/>
+        <include name="commons-lang-2.0.jar"/>
+        <!--include name="commons-logging.jar"/-->
+        <include name="commons-pool.jar"/>
+        <include name="dom4j.jar"/>
+        <include name="ehcache-1.1.jar"/>
+        <include name="hibernate2.jar"/>
+        <include name="jta.jar"/>
+        <include name="mysql-connector.jar"/>
+        <include name="odmg.jar"/>
+        <!--include name="log4j-1.2.9.jar"/-->
+        <include name="spring.jar"/>
+        <include name="velocity-1.4.jar"/>
+        <include name="velocity-tools-generic-1.1.jar"/>
+        <include name="velocity-tools-view-1.1.jar"/>
+      </fileset>
+    </copy>
+
+    <copy todir="build/cycling_log.war/WEB-INF" overwrite="true">
+      <filterset refid="filters"/>      
+      <fileset dir="etc">
+        <include name="applicationContext.xml"/>
+        <include name="commons-logging.properties"/>
+        <include name="ehcache.xml"/>
+        <include name="frontcontroller-servlet.xml"/>
+        <include name="server.xml"/>
+        <include name="jboss-web.xml"/>
+        <include name="velocity.properties"/>
+        <include name="web.xml"/>
+      </fileset>
+    </copy>
+
+    <copy file="etc/dataSource-${target}.xml" 
+      tofile="build/cycling_log.war/WEB-INF/dataSource.xml" 
+      overwrite="true" />
+
+    <copy todir="build/cycling_log.war/WEB-INF/classes">
+      <fileset dir="src/velocity"/>
+    </copy>
+
+    <copy todir="build/cycling_log.war/static">
+      <fileset dir="src/web"/>
+    </copy>
+
+    <copy todir="build/cycling_log.war" file="src/web/index.html" />
+
+    <jar basedir="build/cycling_log.war" destfile="cycling_log.war" />
+
+  </target>
+
+
+  <target name="xml">
+    <xmlvalidate file="etc/jboss-web.xml"/>
+    <xmlvalidate file="etc/web.xml"/>
+  </target>
+
+  <target name="createTestDB">
+    <sql driver="com.mysql.jdbc.Driver" classpath="lib/mysql-connector.jar"
+      url="jdbc:mysql://localhost/" userid="root"
+      autocommit="true" onerror="continue"
+      src="create.sql" />
+  </target>
+
+  <target name="populateTestDB">
+    <!--
+     rsync -r slugger:/usr/local/mysql/data/cycling_log/ /var/lib/mysql/cycling_log_test/
+     chown -R mysql:mysql cycling_log_test/
+     mysqladmin -u root -p refresh
+    -->  
+  </target>
+</project>

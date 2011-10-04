@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<title>Cycling Log Weeks</title>
+  <link rel="stylesheet" href="/cycling_log/static/style/cycling_log.css">
+</head>
+
+<body>
+<form method="post" action="/cycling_log/dynamic/weeks/home">
+<div class="tabs"><div class="tab" id="left"><a href="/cycling_log/dynamic/login/home">HOME</a></div><div class="tab"><a href="/cycling_log/dynamic/workouts/home">WORKOUTS</a></div><div class="tab" id="selected">WEEKS</div><div class="tab"><a href="/cycling_log/dynamic/equipment/home">PREFS</a></div></div>
+<div class="tab_content">
+
+<table>
+	<tr style="vertical-align: top;">
+		<td style="vertical-align: top; padding-top: 14px;"><table class="controls">
+		<tr>
+			<td><input type="image" name="scrollUp" value="scrollUp"
+				src="/cycling_log/static/images/buttons/left.gif"></td>
+			<td class="control" style="padding: 0 0px 0 0;">$weekDateSelector</td>
+			<td><input type="image" name="scrollDown" value="scrollDown"
+				src="/cycling_log/static/images/buttons/right.gif"></td>
+		</tr>
+	</table></td>
+		<td><table class="controls">
+	<tr>
+		<td colspan="2" class="label">Show</td>
+	</tr>
+	<tr>
+		<td class="control">
+			$select.getSelect("weeksCount", ["6", "13", "26", "52"], $!weeksCount, "", "onchange='form.submit()'")
+		</td>
+		<td>Weeks</td>
+	</tr>
+</table></td>
+		<td><table class="controls">
+	<tr>
+		<td colspan="2" class="label">Cyclist</td>
+	</tr>
+	<tr>
+		<td class="control">
+			$select.getSelect("cyclist", $cyclists, $cyclist, "width: 150px;", "onchange='form.submit()'")
+		</td>
+		<td></td>
+	</tr>
+</table></td>
+	</tr>
+</table>
+
+<br>
+
+<table>  
+	<tr>
+		<td class="list_head" colspan="2">Start Date</td>
+		<td class="list_head">Focus</td>
+		<td class="list_head" id="right_align">Hours</td>
+		<td class="list_head" id="right_align">Dist</td>
+		<td class="list_head">Notes</td>
+	</tr>
+#foreach($week in $weeks)
+	<tr>
+		<td class="list_data" id="left_align"><a href="/cycling_log/dynamic/workouts/week?week_id=$week.id">$week.getStartDate("MMM d")</a>
+		<td class="list_data" id="left_align"><a href="/cycling_log/dynamic/workouts/week?week_id=$week.id">$week.getStartDate("yyyy")</a>
+		</td>
+		<td class="list_data" id="left_align">
+				 $week.focus
+		</td>
+		<td class="list_data">$week.durationH</td>
+		<td class="list_data">$week.distanceM</td>
+		<td class="list_data" id="notes">
+			$!week.publicNotes
+		</td>
+	</tr>
+#end
+</table>
+
+</div>
+
+<div class="summary"><span style="margin-right: 36px">$date.get("EEEE, MMMM d, yyyy")</span></div>
+
+</form>
+
+</body>
+
+</html>

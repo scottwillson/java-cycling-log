@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+  <class name="com.butlerpress.cyclinglog.User" table="users">
+    <id name="id" unsaved-value="null">
+      <generator class="identity"/>
+    </id>
+    <property column="name" name="name"/>
+    <property column="email" name="email"/>
+    <property column="firstName" name="firstName"/>
+    <property column="lastName" name="lastName"/>
+    <property column="username" name="username" />
+    <property column="password" name="password" />
+    <set name="equipment" inverse="true" cascade="all">
+      <key column="userId"/>
+      <one-to-many class="com.butlerpress.cyclinglog.Equipment"/>
+    </set>
+    <set name="administrators" table="users_administrators" cascade="all">
+        <key column="userId"/>
+        <many-to-many column="administratorId" class="com.butlerpress.cyclinglog.User"/>
+    </set>
+  </class>
+</hibernate-mapping>
+ 

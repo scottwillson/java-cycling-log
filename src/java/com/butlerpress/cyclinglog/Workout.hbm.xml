@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN" 
+  "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+  <class name="com.butlerpress.cyclinglog.Workout" table="workouts">
+    <id column="id" name="id" type="long">
+      <generator class="identity"/>
+    </id>
+    <property column="activity" length="16" name="activity" not-null="true" type="string"/>
+    <property name="date" type="date" not-null="true"/>
+    <property column="distance" length="22" name="distance" not-null="true" type="float"/>
+    <property column="duration" length="11" name="duration" not-null="true" type="integer"/>
+    <property column="focus" length="16" name="focus" not-null="true" type="string"/>
+    <property column="intensity" length="11" name="intensity" not-null="true" type="integer"/>
+    <property column="life" length="11" name="life" not-null="true" type="integer"/>
+    <property column="morale" length="11" name="morale" not-null="true" type="integer"/>
+    <property column="notes" name="notes" not-null="false" type="string"/>
+    <property column="public_notes" name="publicNotes" not-null="false" type="string"/>
+    <property column="speed" length="22" name="speed" not-null="true" type="float"/>
+    <property column="weather" length="11" name="weather" not-null="true" type="integer"/>
+    <property column="weight" length="12" name="weight" not-null="true" type="float"/>
+    <property column="work" length="12" name="work" not-null="true" type="float"/>
+    <many-to-one name="equipment" column="equipmentId" class="com.butlerpress.cyclinglog.Equipment" />
+    <many-to-one name="user" column="userId" class="com.butlerpress.cyclinglog.User" not-null="true" />
+    <many-to-one name="week" column="weekId" class="com.butlerpress.cyclinglog.Week" not-null="true" />
+  </class>
+</hibernate-mapping>

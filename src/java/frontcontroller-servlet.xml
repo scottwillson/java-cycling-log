@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	
+	<bean id="equipmentFormValidator" class="com.butlerpress.cyclinglog.EquipmentFormValidator"/>
+
+	<bean id="equipmentController" class="com.butlerpress.cyclinglog.EquipmentController">
+		<property name="commandName"><value>form</value></property>
+		<property name="commandClass"><value>com.butlerpress.cyclinglog.EquipmentForm</value></property>
+		<property name="validator"><ref local="equipmentFormValidator"/></property>
+		<property name="formView"><value>/equipment.html</value></property>
+		<property name="equipmentFactory"><ref bean="equipmentFactory"/></property>
+		<property name="modelFactory"><ref bean="modelFactory"/></property>
+		<property name="userFactory"><ref bean="userFactory"/></property>
+	</bean>
+
+	<bean id="loginController" class="com.butlerpress.cyclinglog.LoginController">
+		<property name="methodNameResolver"><ref local="loginControllerMethodNameResolver"/></property>
+		<property name="sessionFactory"><ref bean="sessionFactory"/></property>
+		<property name="modelFactory"><ref bean="modelFactory"/></property>
+		<property name="userFactory"><ref bean="userFactory"/></property>
+		<property name="weekFactory"><ref bean="weekFactory"/></property>
+		<property name="workoutFactory"><ref bean="workoutFactory"/></property>
+	</bean>
+
+	<bean id="weeksController" class="com.butlerpress.cyclinglog.WeeksController">
+		<property name="methodNameResolver"><ref local="weeksControllerMethodNameResolver"/></property>
+		<property name="sessionFactory"><ref bean="sessionFactory"/></property>
+		<property name="modelFactory"><ref bean="modelFactory"/></property>
+		<property name="userFactory"><ref bean="userFactory"/></property>
+		<property name="weekFactory"><ref bean="weekFactory"/></property>
+		<property name="workoutFactory"><ref bean="workoutFactory"/></property>
+	</bean>
+
+	<bean id="workoutsController" class="com.butlerpress.cyclinglog.WorkoutsController">
+		<property name="equipmentFactory"><ref bean="equipmentFactory"/></property>
+		<property name="methodNameResolver"><ref local="workoutsControllerMethodNameResolver"/></property>
+		<property name="sessionFactory"><ref bean="sessionFactory"/></property>
+		<property name="modelFactory"><ref bean="modelFactory"/></property>
+		<property name="userFactory"><ref bean="userFactory"/></property>
+		<property name="weekFactory"><ref bean="weekFactory"/></property>
+		<property name="workoutFactory"><ref bean="workoutFactory"/></property>
+	</bean>
+
+	<bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/equipment/*">equipmentController</prop>
+				<prop key="/login/*">loginController</prop>
+				<prop key="/weeks/*">weeksController</prop>
+				<prop key="/workouts/*">workoutsController</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean id="loginControllerMethodNameResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		<property name="mappings">
+		<props>
+			<prop key="/login/home">home</prop>
+			<prop key="/login/login">login</prop>
+			<prop key="/login/logout">logout</prop>
+		</props>
+		</property>
+	</bean>
+
+	<bean id="weeksControllerMethodNameResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		<property name="mappings">
+		<props>
+			<prop key="/weeks/new">add</prop>
+			<prop key="/weeks/delete">delete</prop>
+			<prop key="/weeks/home">home</prop>
+		</props>
+		</property>
+	</bean>
+
+	<bean id="workoutsControllerMethodNameResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		<property name="mappings">
+		<props>
+			<prop key="/workouts/delete">delete</prop>
+			<prop key="/workouts/edit">edit</prop>
+			<prop key="/workouts/home">home</prop>
+			<prop key="/workouts/update">update</prop>
+			<prop key="/workouts/week">week</prop>
+		</props>
+		</property>
+	</bean>
+
+	<bean id="velocityConfig" 
+			class="org.springframework.web.servlet.view.velocity.VelocityConfigurer"
+			singleton="true">
+    <property name="resourceLoaderPath"><value>/WEB-INF/classes/</value></property>
+		<property name="velocityProperties">
+      <props>
+        <prop key="velocimacro.library">/VM_global_library.vm</prop>
+      </props>
+		</property>
+ </bean>
+
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.velocity.VelocityViewResolver">
+			<property name="dateToolAttribute"><value>date</value></property>          
+	</bean>
+
+	<bean id="modelFactory" class="com.butlerpress.cyclinglog.ModelFactory">
+		<property name="userFactory"><ref bean="userFactory"/></property>
+	</bean>
+
+</beans>
